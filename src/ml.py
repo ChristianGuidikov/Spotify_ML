@@ -43,7 +43,7 @@ def plot_popgenres():
     plt.legend()
 
     # Uncomment the following to create a png file of the plot
-    plt.savefig('../results/ml/vis1.png')
+    # plt.savefig('../results/ml/vis1.png')
 
     plt.show()
 
@@ -56,5 +56,28 @@ def plot_valence():
         Description:    Using model [] we were able to predict the trend of song positivity
     """
 
-    pass
+    valence_df = df[['year', 'genre', 'acousticness', 'valence']]\
+        .query("(acousticness >= 0.5 and genre=='acoustic') or genre!='acoustic'")
 
+    valence_df.drop('acousticness', axis=1, inplace=True)
+    valence_df['mean_valence'] = valence_df.groupby(['year', 'genre'])['valence'].transform('mean')
+    valence_df.drop('valence', axis=1, inplace=True)
+    valence_df.drop_duplicates(inplace=True)
+    valence_df.fillna(0, inplace=True)
+    valence_df = valence_df[valence_df['year'] != 2023]
+    valence_df.sort_values(by=['year', 'genre'], inplace=True)
+
+    # We choose the genres most popular based on the visualisations in part 1
+    genres = ['hip-hop', 'dance', 'pop', 'alt-rock', 'country', 'indie-pop', 'k-pop', 'french']
+
+    for genre in genres:
+        x = np.asarray(valence_df.loc[valence_df['genre'] == genre]['year'])
+        y = np.asarray(valence_df.loc[valence_df['genre'] == genre]['mean_valence'])
+        plt.plot(x, y, label=f'{genre}')
+
+    plt.legend(fontsize="7")
+
+    # Uncomment the following to create a png file of the plot
+    # plt.savefig('../results/ml/vis2.png')
+
+    plt.show()
