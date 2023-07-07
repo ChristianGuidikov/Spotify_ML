@@ -1,3 +1,6 @@
+import datetime
+import math
+
 import numpy as np
 import pandas as pd
 import os.path
@@ -81,3 +84,39 @@ def plot_valence():
     # plt.savefig('../results/ml/vis2.png')
 
     plt.show()
+
+
+def plot_short():
+    """
+        Application 3:  Are songs getting shorter?
+        Dataframe:      short_df
+        Model:          []
+        Description:    Using model [] we were able to predict the trend of song duration
+    """
+
+    short_df = df[['year', 'duration_ms']].query("year != 2023")
+    short_df['mean_duration'] = short_df.groupby('year')['duration_ms'].transform('mean')/60000
+    short_df.drop('duration_ms', axis=1, inplace=True)
+    short_df.drop_duplicates(inplace=True)
+    short_df.sort_values(by='year', inplace=True)
+
+    x = np.asarray(short_df['year'])
+    y = np.asarray(short_df['mean_duration'])
+
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    ax.plot(x, y)
+
+    labels = ax.get_yticks().tolist()
+
+    for i in range(len(labels)):
+        labels[i] = round(labels[i], 1)
+        labels[i] = f"${math.floor(labels[i])}:${round((labels[i]%1)*60)}"
+
+    ax.set_yticklabels(labels)
+
+    # Uncomment the following to create a png file of the plot
+    plt.savefig('../results/ml/vis3.png')
+
+    plt.show()
+
