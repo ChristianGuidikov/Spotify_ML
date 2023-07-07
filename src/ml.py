@@ -116,7 +116,34 @@ def plot_short():
     ax.set_yticklabels(labels)
 
     # Uncomment the following to create a png file of the plot
-    plt.savefig('../results/ml/vis3.png')
+    # plt.savefig('../results/ml/vis3.png')
 
     plt.show()
 
+
+def plot_tempo():
+    """
+        Application 4:  Are songs getting faster?
+        Dataframe:      tempo_df
+        Model:          []
+        Description:    Using model [] we were able to predict the trend of tempo in music
+    """
+
+    tempo_df = df[['year', 'tempo']].query("year != 2023")
+    tempo_df['mean_tempo'] = tempo_df.groupby('year')['tempo'].transform('mean')
+    tempo_df.drop('tempo', axis=1, inplace=True)
+    tempo_df.drop_duplicates(inplace=True)
+    tempo_df.sort_values(by='year', inplace=True)
+
+    x = np.asarray(tempo_df['year'])
+    y = np.asarray(tempo_df['mean_tempo'])
+
+    plt.plot(x, y)
+
+    # Uncomment the following to create a png file of the plot
+    # plt.savefig('../results/ml/vis4.png')
+
+    plt.show()
+
+
+plot_tempo()
