@@ -86,7 +86,7 @@ def plot_valence():
         Application 2:  Are songs going to be more positive? (valence)
         Dataframe:      valence_df
         Plot:           Plot of the most popular genres and their valence (positivity).
-        Model:          Polynomial Regression
+        Model:          Polynomial Regression (3rd degree)
         Description:    Using model Polynomial Regression we were able to predict the trend of song positivity.
     """
 
@@ -134,7 +134,7 @@ def plot_valence():
     plt.legend()
 
     # Uncomment the following to create a png file of the plot
-    plt.savefig('../results/ml/pred2.png')
+    # plt.savefig('../results/ml/pred2.png')
 
     plt.show()
 
@@ -143,8 +143,8 @@ def plot_short():
     """
         Application 3:  Are songs getting shorter?
         Dataframe:      short_df
-        Model:          []
-        Description:    Using model [] we were able to predict the trend of song duration
+        Model:          Polynomial Regression
+        Description:    Using model Polynomial Regression we were able to predict the trend of song duration over time.
     """
 
     short_df = df[['year', 'duration_ms']].query("year != 2023")
@@ -153,12 +153,20 @@ def plot_short():
     short_df.drop_duplicates(inplace=True)
     short_df.sort_values(by='year', inplace=True)
 
-    x = np.asarray(short_df['year'])
+    X = np.asarray(short_df['year'])
     y = np.asarray(short_df['mean_duration'])
 
     fig, ax = plt.subplots()
     fig.canvas.draw()
-    ax.plot(x, y)
+
+    poly = PolynomialFeatures(2)
+    poly_features = poly.fit_transform(X.reshape(-1, 1))
+    poly_reg_model = LinearRegression()
+    poly_reg_model.fit(poly_features, y)
+    y_predicted = poly_reg_model.predict(poly_features)
+
+    ax.scatter(X, y, label="data")
+    ax.plot(X, y_predicted, label="prediction", c="red")
 
     labels = ax.get_yticks().tolist()
 
@@ -168,8 +176,10 @@ def plot_short():
 
     ax.set_yticklabels(labels)
 
+    plt.legend()
+
     # Uncomment the following to create a png file of the plot
-    # plt.savefig('../results/ml/vis3.png')
+    # plt.savefig('../results/ml/pred3.png')
 
     plt.show()
 
@@ -194,8 +204,8 @@ def plot_tempo():
     plt.plot(x, y)
 
     # Uncomment the following to create a png file of the plot
-    # plt.savefig('../results/ml/vis4.png')
+    # plt.savefig('../results/ml/pred4.png')
 
     plt.show()
 
-
+plot_tempo()
