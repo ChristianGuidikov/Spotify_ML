@@ -159,7 +159,7 @@ def plot_short():
     fig, ax = plt.subplots()
     fig.canvas.draw()
 
-    poly = PolynomialFeatures(2)
+    poly = PolynomialFeatures(degree=2, include_bias=False)
     poly_features = poly.fit_transform(X.reshape(-1, 1))
     poly_reg_model = LinearRegression()
     poly_reg_model.fit(poly_features, y)
@@ -198,14 +198,21 @@ def plot_tempo():
     tempo_df.drop_duplicates(inplace=True)
     tempo_df.sort_values(by='year', inplace=True)
 
-    x = np.asarray(tempo_df['year'])
+    X = np.asarray(tempo_df['year'])
     y = np.asarray(tempo_df['mean_tempo'])
 
-    plt.plot(x, y)
+    poly = PolynomialFeatures(degree=3, include_bias=False)
+    poly_features = poly.fit_transform(X.reshape(-1, 1))
+    poly_reg_model = LinearRegression()
+    poly_reg_model.fit(poly_features, y)
+    y_predicted = poly_reg_model.predict(poly_features)
+
+    plt.scatter(X, y, label="data")
+    plt.plot(X, y_predicted, label="prediction", c="red")
+
+    plt.legend()
 
     # Uncomment the following to create a png file of the plot
     # plt.savefig('../results/ml/pred4.png')
 
     plt.show()
-
-plot_tempo()
