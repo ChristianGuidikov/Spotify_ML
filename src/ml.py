@@ -18,11 +18,14 @@ df = pd.read_csv(open(path))
 
 def plot_popgenres():
     """
-        Visualisation 1:  Most popular genres
-        Dataframe:        popgenres_df
-        Description:      Plot of the most popular genres based on mean popularity over the years. We acknowledge here
-                          that using a line plot instead of a scatter plot may be erroneous, however it is easier to
-                          visualise.
+        Application 1:  Which genres are going to be the most popular?
+        Dataframe:      popgenres_df
+        Plot:           Plot of the most popular genres based on mean popularity over the years. We acknowledge here
+                        that using a line plot instead of a scatter plot may be erroneous as it "creates" data points,
+                        however it is easier to visualise.
+        Model:          Polynomial Regression
+        Description:    Using Polynomial Regression we were able to predict the trend of genre popularity amongst the
+                        4 most popular genres.
     """
 
     popgenres_df = df[['popularity', 'year', 'genre', 'danceability', 'acousticness']]\
@@ -41,7 +44,7 @@ def plot_popgenres():
     # genres = np.asarray(popgenres_df['genre'].drop_duplicates())
 
     # We choose the most popular genres based on the visualisations in part 1
-    genres = ['pop', 'hip-hop', 'dance', 'alt-rock', 'country', 'indie-pop', 'k-pop', 'french']
+    genres = ['pop', 'hip-hop', 'dance', 'k-pop', 'alt-rock', 'country', 'indie-pop', 'french']
 
     for genre in genres:
         X = np.asarray(popgenres_df.loc[popgenres_df['genre'] == genre]['year'])
@@ -55,32 +58,9 @@ def plot_popgenres():
 
     plt.show()
 
+    popgenres = ['pop', 'hip-hop', 'dance', 'k-pop']
 
-def plot_popgenres_pred():
-    """
-        Application 1:  Which genres are going to be the most popular?
-        Dataframe:      popgenres_df
-        Model:          Polynomial Regression
-        Description:    Using Polynomial Regression we were able to predict the trend of genre popularity amongst the
-                        3 most popular genres
-    """
-
-    popgenres_df = df[['popularity', 'year', 'genre', 'danceability', 'acousticness']] \
-        .query("((acousticness >= 0.5 and genre=='acoustic') or genre!='acoustic') and popularity>50")
-
-    popgenres_df.drop(['danceability', 'acousticness'], axis=1, inplace=True)
-    popgenres_df.sort_values(by=['year', 'genre'], inplace=True)
-
-    popgenres_df['mean'] = popgenres_df.groupby(['year', 'genre'])['popularity'].transform('mean')
-    popgenres_df.drop('popularity', axis=1, inplace=True)
-    popgenres_df.drop_duplicates(inplace=True)
-    popgenres_df.fillna(0, inplace=True)
-    popgenres_df = popgenres_df[popgenres_df['year'] != 2023]
-
-    # We choose the 3 most popular genres based on the visualisations in part 1
-    genres = ['pop', 'hip-hop', 'dance', 'k-pop']
-
-    for genre in genres:
+    for genre in popgenres:
         X = np.asarray(popgenres_df.loc[popgenres_df['genre'] == genre]['year'])
         y = np.asarray(popgenres_df.loc[popgenres_df['genre'] == genre]['mean'])
 
@@ -101,15 +81,13 @@ def plot_popgenres_pred():
     plt.show()
 
 
-plot_popgenres_pred()
-
-
 def plot_valence():
     """
         Application 2:  Are songs going to be more positive? (valence)
         Dataframe:      valence_df
-        Model:          []
-        Description:    Using model [] we were able to predict the trend of song positivity
+        Plot:           Plot of the most popular genres and their valence (positivity).
+        Model:          Polynomial Regression
+        Description:    Using model Polynomial Regression we were able to predict the trend of song positivity.
     """
 
     valence_df = df[['year', 'genre', 'acousticness', 'valence']]\
@@ -124,7 +102,7 @@ def plot_valence():
     valence_df.sort_values(by=['year', 'genre'], inplace=True)
 
     # We choose the genres most popular based on the visualisations in part 1
-    genres = ['hip-hop', 'dance', 'pop', 'alt-rock', 'country', 'indie-pop', 'k-pop', 'french']
+    genres = ['hip-hop', 'dance', 'pop', 'k-pop', 'alt-rock', 'country', 'indie-pop', 'french']
 
     for genre in genres:
         x = np.asarray(valence_df.loc[valence_df['genre'] == genre]['year'])
@@ -135,6 +113,28 @@ def plot_valence():
 
     # Uncomment the following to create a png file of the plot
     # plt.savefig('../results/ml/vis2.png')
+
+    plt.show()
+
+    popgenres = ['hip-hop', 'dance', 'pop', 'k-pop']
+
+    for genre in popgenres:
+        X = np.asarray(valence_df.loc[valence_df['genre'] == genre]['year'])
+        y = np.asarray(valence_df.loc[valence_df['genre'] == genre]['mean_valence'])
+
+        poly = PolynomialFeatures(degree=3, include_bias=False)
+        poly_features = poly.fit_transform(X.reshape(-1, 1))
+        poly_reg_model = LinearRegression()
+        poly_reg_model.fit(poly_features, y)
+        y_predicted = poly_reg_model.predict(poly_features)
+
+        plt.scatter(X, y, label=f"{genre}", s=2)
+        plt.plot(X, y_predicted, label=f"{genre} pred")
+
+    plt.legend()
+
+    # Uncomment the following to create a png file of the plot
+    plt.savefig('../results/ml/pred2.png')
 
     plt.show()
 
