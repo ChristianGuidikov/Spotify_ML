@@ -37,10 +37,51 @@ predictions one can make using the given dataset:
 2) Are songs going to be more positive? (valence)
 3) Are songs getting shorter?
 4) Are songs getting faster?
-5) How to make the most popular song?
 
 We will be using the sklearn library to apply the necessary machine learning models, along with numpy, pandas and 
 matplotlib as before. The code is available in the [machine learning file](./src/ml.py), and the results can be 
 replicated again by adding the original dataset's csv file in a "data" folder at the project's source.
 
 <hr>
+
+1) To predict which genres are going to be the most popular, it is interesting to first plot the 10 most popular genres
+as a time series, and then try to predict the trend for popularity of the most rapidly increasing ones. We have thus 
+done so in the following visualisations:
+
+<img alt="figure 4" src="./results/ml/vis1.png" width="700"/>
+
+<img alt="figure 5" src="./results/ml/pred1.png" width="700"/>
+
+Using the second plot as a reference, we can see that the most popular genre and the most rapidly increasing one in 
+popularity is "pop". It is interesting to also note the rapid increase of "k-pop" which seems to have a linear increase 
+over the past 20 years. When extrapolating the predictions made by the model over the next until 2035 we see that pop 
+music is still the most popular, while hip-hop takes the lead over k-pop.
+
+2) As for the positivity of songs, we can similarly plot the average valence of the genres, and by taking the same 
+genres as in the previous prediction, we get:
+
+<img alt="figure 6" src="./results/ml/vis2.png" width="700"/>
+
+<img alt="figure 7" src="./results/ml/pred2.png" width="700"/>
+
+We thus note the seemingly decreasing in valence over the past 20 years. However, it is important to note that to better 
+fit the data, we here used a 3rd degree polynomial regression model, as we could already notice in the first 
+visualisation that the trend seems to be increasing again after around 2016-17. We can also note the stable valence of 
+k-pop over the provided dataset compared to the other 3 most popular genres. We can here again extrapolate the plot to 
+observe the quick rise in valence of hip-hop, dance and pop.
+
+3) It would also be relevant to analyse the changing length of songs over time, as genres are getting more varied. To do
+so we take the mean of the length of each song in the dataset and group by date. We obtain the following visualisations:
+
+<img alt="figure 8" src="./results/ml/pred3.png" width="700"/>
+
+While the model is limited by the low number of datapoints, we can still see that the average length of songs is 
+decreasing and may reach under three minutes in the upcoming years.
+
+4) Similarly to the song length, we can plot the average tempo of songs over the years:
+
+<img alt="figure 8" src="./results/ml/pred4.png" width="700"/>
+
+Here again, we used polynomial regression with degree 3 as it fit the datapoints best. It is important to note that, 
+while the increase seems to be exponential after around 2025, the y-axis labels show that the increase is only of a few 
+beats per minute.

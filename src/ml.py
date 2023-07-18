@@ -6,9 +6,7 @@ import pandas as pd
 import os.path
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.metrics import mean_squared_error
 
 
 my_path = os.path.abspath(os.path.dirname(__file__))
@@ -60,6 +58,8 @@ def plot_popgenres():
 
     popgenres = ['pop', 'hip-hop', 'dance', 'k-pop']
 
+    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
+
     for genre in popgenres:
         X = np.asarray(popgenres_df.loc[popgenres_df['genre'] == genre]['year'])
         y = np.asarray(popgenres_df.loc[popgenres_df['genre'] == genre]['mean'])
@@ -70,8 +70,16 @@ def plot_popgenres():
         poly_reg_model.fit(poly_features, y)
         y_predicted = poly_reg_model.predict(poly_features)
 
-        plt.scatter(X, y, label=f"{genre}", s=2)
-        plt.plot(X, y_predicted, label=f"{genre} pred")
+        x2, x1, b = np.polyfit(X, y_predicted, 2)
+        pred_X = np.concatenate([X, np.asarray(range(2023, 2036))])
+
+        extra_y = [x2*i*i + x1*i + b for i in pred_X]
+
+        ax1.scatter(X, y, label=f"{genre}", s=2)
+        ax1.plot(X, y_predicted, label=f"{genre} pred")
+
+        ax2.scatter(X, y, label=f"{genre}", s=2)
+        ax2.plot(pred_X, extra_y, label=f"{genre} pred")
 
     plt.legend()
 
@@ -118,6 +126,8 @@ def plot_valence():
 
     popgenres = ['hip-hop', 'dance', 'pop', 'k-pop']
 
+    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
+
     for genre in popgenres:
         X = np.asarray(valence_df.loc[valence_df['genre'] == genre]['year'])
         y = np.asarray(valence_df.loc[valence_df['genre'] == genre]['mean_valence'])
@@ -128,13 +138,21 @@ def plot_valence():
         poly_reg_model.fit(poly_features, y)
         y_predicted = poly_reg_model.predict(poly_features)
 
-        plt.scatter(X, y, label=f"{genre}", s=2)
-        plt.plot(X, y_predicted, label=f"{genre} pred")
+        x3, x2, x1, b = np.polyfit(X, y_predicted, 3)
+        pred_X = np.concatenate([X, np.asarray(range(2023, 2028))])
+
+        extra_y = [x3*i*i*i + x2*i*i + x1*i + b for i in pred_X]
+
+        ax1.scatter(X, y, label=f"{genre}", s=2)
+        ax1.plot(X, y_predicted, label=f"{genre} pred")
+
+        ax2.scatter(X, y, label=f"{genre}", s=2)
+        ax2.plot(pred_X, extra_y, label=f"{genre} pred")
 
     plt.legend()
 
     # Uncomment the following to create a png file of the plot
-    # plt.savefig('../results/ml/pred2.png')
+    plt.savefig('../results/ml/pred2.png')
 
     plt.show()
 
@@ -156,7 +174,7 @@ def plot_short():
     X = np.asarray(short_df['year'])
     y = np.asarray(short_df['mean_duration'])
 
-    fig, ax = plt.subplots()
+    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
     fig.canvas.draw()
 
     poly = PolynomialFeatures(degree=2, include_bias=False)
@@ -165,16 +183,30 @@ def plot_short():
     poly_reg_model.fit(poly_features, y)
     y_predicted = poly_reg_model.predict(poly_features)
 
-    ax.scatter(X, y, label="data")
-    ax.plot(X, y_predicted, label="prediction", c="red")
+    x2, x1, b = np.polyfit(X, y_predicted, 2)
+    pred_X = np.concatenate([X, np.asarray(range(2023, 2036))])
 
-    labels = ax.get_yticks().tolist()
+    extra_y = [x2 * i * i + x1 * i + b for i in pred_X]
+
+    ax1.scatter(X, y, label="data")
+    ax1.plot(X, y_predicted, label="prediction", c="red")
+
+    ax2.scatter(X, y, label=f"data", s=3)
+    ax2.plot(pred_X, extra_y, label=f"prediction", c="red")
+
+    labels = ax1.get_yticks().tolist()
+    labels2 = ax2.get_yticks().tolist()
 
     for i in range(len(labels)):
         labels[i] = round(labels[i], 1)
         labels[i] = f"${math.floor(labels[i])}:${round((labels[i]%1)*60)}"
 
-    ax.set_yticklabels(labels)
+    for i in range(len(labels2)):
+        labels2[i] = round(labels2[i], 1)
+        labels2[i] = f"${math.floor(labels2[i])}:${round((labels2[i] % 1) * 60)}"
+
+    ax1.set_yticklabels(labels)
+    ax2.set_yticklabels(labels2)
 
     plt.legend()
 
@@ -188,8 +220,8 @@ def plot_tempo():
     """
         Application 4:  Are songs getting faster?
         Dataframe:      tempo_df
-        Model:          []
-        Description:    Using model [] we were able to predict the trend of tempo in music
+        Model:          Polynomial Regression
+        Description:    Using model Polynomial Regression we were able to predict the trend of tempo in music.
     """
 
     tempo_df = df[['year', 'tempo']].query("year != 2023")
@@ -207,8 +239,17 @@ def plot_tempo():
     poly_reg_model.fit(poly_features, y)
     y_predicted = poly_reg_model.predict(poly_features)
 
-    plt.scatter(X, y, label="data")
-    plt.plot(X, y_predicted, label="prediction", c="red")
+    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
+    x3, x2, x1, b = np.polyfit(X, y_predicted, 3)
+    pred_X = np.concatenate([X, np.asarray(range(2023, 2036))])
+
+    extra_y = [x3*i*i*i + x2*i*i + x1*i + b for i in pred_X]
+
+    ax1.scatter(X, y, label="data")
+    ax1.plot(X, y_predicted, label="prediction", c="red")
+
+    ax2.scatter(X, y, label=f"data", s=3)
+    ax2.plot(pred_X, extra_y, label=f"prediction", c="red")
 
     plt.legend()
 
